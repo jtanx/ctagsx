@@ -1,0 +1,56 @@
+{
+  "name": "ctagsx",
+  "displayName": "ctagsx",
+  "description": "A fast, cross-platform and working ctags implementation",
+  "version": "1.0.0",
+  "publisher": "jtanx",
+  "icon": "img/logo.svg",
+  "engines": {
+    "vscode": "^1.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtanx/ctagsx.git"
+  },
+  "author": "Jeremy Tan",
+  "license": "MIT",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.findCTags"
+  ],
+  "main": "./extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.findCTags",
+        "title": "ctagsx: Navigate to definition"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.findCTags",
+        "key": "ctrl+t",
+        "mac": "cmd+t",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "eslint": "^3.6.0",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "dependencies": {
+    "ctagz": "^0.0.4",
+    "line-reader": "^0.4.0"
+  }
+}
