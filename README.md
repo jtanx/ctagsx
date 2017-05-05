@@ -22,7 +22,7 @@ None at the moment
 
 ## Known Issues
 * It is assumed that tags files are sorted, as ctagsx will only perform a binary search on the tags file. If the file is not sorted, then it may generate incorrect results.
-* It is not possible to search for tags in a large file (>= 5MB). This is a [limitation](https://github.com/Microsoft/vscode/issues/3147) of Visual Studio Code.
+* It is not possible to search for tags when editing a large file (>= 5MB). This is a [limitation](https://github.com/Microsoft/vscode/issues/3147) of Visual Studio Code.
 
 ## Release Notes
 

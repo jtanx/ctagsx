@@ -35,10 +35,12 @@ function findCTags(/* context */) {
     ctagz.findCTagsBSearch(editor.document.fileName, tag)
     .then(result => {
         const options = result.results.map(tag => {
+            if (!path.isAbsolute(tag.file)) {
+                tag.file = path.join(path.dirname(result.tagsFile), tag.file)
+            }
             tag.description = tag.kind || ''
             tag.label = tag.file
             tag.detail = tag.address.pattern || `Line ${tag.address.lineNumber}`
-            tag.file = path.join(path.dirname(result.tagsFile), tag.file)
             return tag
         })
 
@@ -104,7 +106,7 @@ function getLineNumber(entry) {
 
 function openAndReveal(entry) {
     return vscode.workspace.openTextDocument(entry.file).then(doc => {
-        vscode.window.showTextDocument(doc).then(editor => {
+        return vscode.window.showTextDocument(doc).then(editor => {
             if (entry.address.lineNumber > 0) {
                 const lineSelection = new vscode.Selection(entry.address.lineNumber - 1, 0, entry.address.lineNumber - 1, 0)
                 editor.selection = lineSelection
