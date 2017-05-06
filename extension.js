@@ -139,7 +139,7 @@ function revealCTags(editor, entry) {
 
     const openAndReveal = (sel) => {
         return vscode.workspace.openTextDocument(entry.file).then(doc => {
-            return vscode.window.showTextDocument(doc).then(editor => {
+            return vscode.window.showTextDocument(doc, editor.viewColumn).then(editor => {
                 if (sel) {
                     editor.selection = sel
                     editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)

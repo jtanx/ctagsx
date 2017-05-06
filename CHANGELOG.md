@@ -8,6 +8,8 @@ All notable changes to the "ctagsx" extension will be documented in this file.
 - Display the absolute path to the file in the drop-down selection
 - Account for having absolute file paths as provided directly by the tags file
 - When navigating to the line within a file, also move the cursor to the start of the tag on that line. ctagsx will only move to the first occurrence of the tag on the line; it does not delineate _which_ occurrence it should move to.
+### Fixed
+- Open the definition in the same view column as the active editor, instead of always in the first
 
-## [1.0.0]
+## [1.0.0] - 2017-05-04
 - Initial release
