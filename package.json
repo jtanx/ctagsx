@@ -2,7 +2,7 @@
   "name": "ctagsx",
   "displayName": "ctagsx",
   "description": "A fast, cross-platform and working ctags implementation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "jtanx",
   "icon": "img/logo.svg",
   "engines": {

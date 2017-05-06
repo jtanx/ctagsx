@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
-## [Unreleased]
+## [1.0.1] - 2017-05-07
 ### Added
 - Added handling for file names in the format of `file_name:line_number:char_number`, e.g. `stemdb.c:3513:30`, where `file_name` is the text selected for lookup. It will now jump to the specified line number, and if given, the character position.
 ### Changed
