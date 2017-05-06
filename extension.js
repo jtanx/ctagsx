@@ -50,12 +50,13 @@ function findCTags(/* context */) {
             }
             return vscode.window.showInformationMessage(`ctagsx: No tags found for ${tag}`)
         } else if (options.length === 1) {
-            return revealCTags(options[0])
+            return revealCTags(editor, options[0])
         } else {
-            return vscode.window.showQuickPick(options).then(opt => revealCTags(opt))
+            return vscode.window.showQuickPick(options).then(opt => revealCTags(editor, opt))
         }
     })
     .catch(err => {
+        console.log(err.stack)
         vscode.window.showErrorMessage(`ctagsx: Search failed: ${err}`)
     })
 }
@@ -97,36 +98,63 @@ function getLineNumber(entry) {
         }
     })
     .then(() => {
-        if (!found) {
-            return 0
+        if (found) {
+            return new vscode.Selection(i - 1, 0, i - 1, 0)
         }
-        return i
     })
 }
 
-function openAndReveal(entry) {
-    return vscode.workspace.openTextDocument(entry.file).then(doc => {
-        return vscode.window.showTextDocument(doc).then(editor => {
-            if (entry.address.lineNumber > 0) {
-                const lineSelection = new vscode.Selection(entry.address.lineNumber - 1, 0, entry.address.lineNumber - 1, 0)
-                editor.selection = lineSelection
-                editor.revealRange(lineSelection, vscode.TextEditorRevealType.InCenter)
+function getFileLineNumber(editor) {
+    let pos = editor.selection.active.isAfter(editor.selection.anchor) ?
+        editor.selection.active.translate(0, 1) :
+        editor.selection.anchor.translate(0, 1)
+    let range = editor.document.getWordRangeAtPosition(pos)
+    if (range) {
+        let text = editor.document.getText(range)
+        if (text.match(/[0-9]+/)) {
+            const lineNumber = parseInt(text, 10)
+            let charPos = 0
+
+            pos = range.end.translate(0, 1)
+            range = editor.document.getWordRangeAtPosition(pos)
+            if (range) {
+                text = editor.document.getText(range)
+                if (text.match(/[0-0]+/)) {
+                    charPos = parseInt(text)
+                }
             }
-        })
-    })
+            console.log(`ctagsx: Resolved file position to line ${lineNumber}, char ${charPos}`)
+            return Promise.resolve(new vscode.Selection(lineNumber, charPos, lineNumber, charPos))
+        }
+    }
+    return Promise.resolve()
 }
 
-function revealCTags(entry) {
+function revealCTags(editor, entry) {
     if (!entry) {
         return
     }
 
+    const openAndReveal = (sel) => {
+        return vscode.workspace.openTextDocument(entry.file).then(doc => {
+            return vscode.window.showTextDocument(doc).then(editor => {
+                if (sel) {
+                    editor.selection = sel
+                    editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)
+                }
+            })
+        })
+    }
+
     if (entry.address.lineNumber === 0) {
-        return getLineNumber(entry).then(line => {
-            entry.address.lineNumber = line
-            return openAndReveal(entry)
+        return getLineNumber(entry).then(sel => {
+            return openAndReveal(sel)
+        })
+    } else if (entry.kind === 'F') {
+        return getFileLineNumber(editor).then(sel => {
+            return openAndReveal(sel)
         })
     } else {
-        return openAndReveal(entry)
+        return openAndReveal()
     }
 }
