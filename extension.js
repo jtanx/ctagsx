@@ -87,19 +87,21 @@ function getLineNumber(entry) {
         matchWhole = true
     }
 
-    let i = 0
+    let lineNumber = 0
+    let charPos = 0
     let found
     return eachLine(entry.file, line => {
-        i += 1
+        lineNumber += 1
         if ((matchWhole && line === pattern) || line.startsWith(pattern)) {
           found = true
-          console.log(`ctagsx: Found ${pattern} at ${i}`)
+          charPos = Math.max(line.indexOf(entry.name), 0)
+          console.log(`ctagsx: Found '${pattern}' at ${lineNumber}:${charPos}`)
           return false
         }
     })
     .then(() => {
         if (found) {
-            return new vscode.Selection(i - 1, 0, i - 1, 0)
+            return new vscode.Selection(lineNumber - 1, charPos, lineNumber - 1, charPos)
         }
     })
 }
