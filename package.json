@@ -14,6 +14,10 @@
   },
   "author": "Jeremy Tan",
   "license": "MIT",
+  "bugs": {
+      "url": "https://github.com/jtanx/ctagsx/issues"
+  },
+  "homepage": "https://github.com/jtanx/ctagsx",
   "categories": [
     "Other"
   ],
