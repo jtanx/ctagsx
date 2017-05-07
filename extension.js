@@ -107,25 +107,23 @@ function getLineNumber(entry) {
 }
 
 function getFileLineNumber(editor) {
-    let pos = editor.selection.active.isAfter(editor.selection.anchor) ?
-        editor.selection.active.translate(0, 1) :
-        editor.selection.anchor.translate(0, 1)
+    let pos = editor.selection.end.translate(0, 1)
     let range = editor.document.getWordRangeAtPosition(pos)
     if (range) {
         let text = editor.document.getText(range)
         if (text.match(/[0-9]+/)) {
-            const lineNumber = parseInt(text, 10)
+            const lineNumber = Math.max(0, parseInt(text, 10) - 1)
             let charPos = 0
 
             pos = range.end.translate(0, 1)
             range = editor.document.getWordRangeAtPosition(pos)
             if (range) {
                 text = editor.document.getText(range)
-                if (text.match(/[0-0]+/)) {
-                    charPos = parseInt(text)
+                if (text.match(/[0-9]+/)) {
+                    charPos = Math.max(0, parseInt(text) - 1)
                 }
             }
-            console.log(`ctagsx: Resolved file position to line ${lineNumber}, char ${charPos}`)
+            console.log(`ctagsx: Resolved file position to line ${lineNumber + 1}, char ${charPos + 1}`)
             return Promise.resolve(new vscode.Selection(lineNumber, charPos, lineNumber, charPos))
         }
     }
@@ -157,6 +155,8 @@ function revealCTags(editor, entry) {
             return openAndReveal(sel)
         })
     } else {
-        return openAndReveal()
+        const lineNumber = Math.max(0, entry.address.lineNumber - 1)
+        const sel = new vscode.Selection(lineNumber, 0, lineNumber, 0)
+        return openAndReveal(sel)
     }
 }
