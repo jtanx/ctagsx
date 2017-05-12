@@ -2,7 +2,7 @@
   "name": "ctagsx",
   "displayName": "ctagsx",
   "description": "A fast, cross-platform and working ctags implementation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "jtanx",
   "icon": "img/logo.svg",
   "engines": {
@@ -22,7 +22,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.findCTags"
+    "onCommand:extension.findCTags",
+    "onCommand:extension.ctagsJumpBack",
+    "onCommand:extension.ctagsClearJumpStack"
   ],
   "main": "./extension",
   "contributes": {
@@ -30,6 +32,14 @@
       {
         "command": "extension.findCTags",
         "title": "ctagsx: Navigate to definition"
+      },
+      {
+        "command": "extension.ctagsJumpBack",
+        "title": "ctagsx: Jump back to previous location from navigation"
+      },
+      {
+        "command": "extension.ctagsClearJumpStack",
+        "title": "ctagsx: Clear navigation history"
       }
     ],
     "keybindings": [
@@ -37,6 +47,11 @@
         "command": "extension.findCTags",
         "key": "ctrl+t",
         "mac": "cmd+t",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.ctagsJumpBack",
+        "key": "alt+t",
         "when": "editorTextFocus"
       }
     ]

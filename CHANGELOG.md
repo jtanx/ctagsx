@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.0.3] - 2017-05-13
+### Fixed
+- Fix jumping to tags when editing an untitled document (default to using workspace root to search for tags)
+
+### Added
+- Added jump stack to allow jumping back to previous location where 'Navigate to definition' was called (default: `Alt+t`)
+- Added method to clear jump stack (not bound to any hotkey)
+
 ## [1.0.2] - 2017-05-07
 ### Fixed
 - Fix off-by-one error when navigating to file line number

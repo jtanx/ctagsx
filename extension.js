@@ -9,7 +9,13 @@ const eachLine = Promise.promisify(lineReader.eachLine)
 function activate(context) {
     console.log('ctagsx is live')
 
-    const disposable = vscode.commands.registerCommand('extension.findCTags', () => findCTags(context))
+    let disposable = vscode.commands.registerCommand('extension.findCTags', () => findCTags(context))
+    context.subscriptions.push(disposable)
+
+    disposable = vscode.commands.registerCommand('extension.ctagsJumpBack', () => jumpBack(context))
+    context.subscriptions.push(disposable)
+
+    disposable = vscode.commands.registerCommand('extension.ctagsClearJumpStack', () => clearJumpStack(context))
     context.subscriptions.push(disposable)
 }
 exports.activate = activate
@@ -20,7 +26,7 @@ function deactivate() {
 }
 exports.deactivate = deactivate
 
-function findCTags(/* context */) {
+function findCTags(context) {
     const editor = vscode.window.activeTextEditor
     if (!editor) {
         console.log('ctagsx: Cannot search - no active editor (file too large? https://github.com/Microsoft/vscode/issues/3147)')
@@ -32,7 +38,20 @@ function findCTags(/* context */) {
         return
     }
 
-    ctagz.findCTagsBSearch(editor.document.fileName, tag)
+    let searchPath = editor.document.fileName
+    if (editor.document.isUntitled || editor.document.uri.scheme !== 'file') {
+        searchPath = vscode.workspace.rootPath
+    }
+
+    if (!searchPath) {
+        console.log('ctagsx: Could not get a path to search for tags file')
+        console.log('ctagsx: Document is untitled? ', editor.document.isUntitled)
+        console.log('ctagsx: Document URI:', editor.document.uri.toString())
+        console.log('ctagsx: Workspace root: ', vscode.workspace.rootPath)
+        return vscode.window.showWarningMessage(`ctagsx: No searchable path (no workspace folder open?)`)
+    }
+
+    ctagz.findCTagsBSearch(searchPath, tag)
     .then(result => {
         const options = result.results.map(tag => {
             if (!path.isAbsolute(tag.file)) {
@@ -50,15 +69,63 @@ function findCTags(/* context */) {
             }
             return vscode.window.showInformationMessage(`ctagsx: No tags found for ${tag}`)
         } else if (options.length === 1) {
-            return revealCTags(editor, options[0])
+            return revealCTags(context, editor, options[0])
         } else {
-            return vscode.window.showQuickPick(options).then(opt => revealCTags(editor, opt))
+            return vscode.window.showQuickPick(options).then(opt => {
+                return revealCTags(context, editor, opt)
+            })
         }
     })
     .catch(err => {
         console.log(err.stack)
         vscode.window.showErrorMessage(`ctagsx: Search failed: ${err}`)
     })
+}
+
+function jumpBack(context) {
+    const stack = context.workspaceState.get('CTAGSX_JUMP_STACK', [])
+    if (stack.length > 0) {
+        const position = stack.pop()
+        return context.workspaceState.update('CTAGSX_JUMP_STACK', stack).then(() => {
+            const uri = vscode.Uri.parse(position.uri)
+            const sel = new vscode.Selection(position.lineNumber, position.charPos, position.lineNumber, position.charPos)
+            return vscode.workspace.openTextDocument(uri).then(doc => {
+                const editor = vscode.window.activeTextEditor
+                const viewColumn = editor ? editor.viewColumn : vscode.ViewColumn.One
+                return vscode.window.showTextDocument(doc, viewColumn).then(editor => {
+                    editor.selection = sel
+                    editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)
+                })
+            })
+        })
+    }
+}
+
+function clearJumpStack(context) {
+    return context.workspaceState.update('CTAGSX_JUMP_STACK', [])
+}
+
+function saveState(context, editor) {
+    const currentPosition = {
+        uri: editor.document.uri.toString(),
+        lineNumber: editor.selection.active.line,
+        charPos: editor.selection.active.character
+    }
+
+    const stack = context.workspaceState.get('CTAGSX_JUMP_STACK', [])
+    if (stack.length > 0) {
+        const lastPosition = stack[stack.length - 1]
+        // As long as the jump position was roughly the same line, don't save to the stack
+        if (lastPosition.uri === currentPosition.uri && lastPosition.lineNumber === currentPosition.lineNumber) {
+            return Promise.resolve()
+        } else if (stack.length > 50) {
+            stack.shift()
+        }
+    }
+    stack.push(currentPosition)
+    console.log('ctagsx: Jump stack:', stack)
+
+    return context.workspaceState.update('CTAGSX_JUMP_STACK', stack)
 }
 
 function getTag(editor) {
@@ -130,13 +197,15 @@ function getFileLineNumber(editor) {
     return Promise.resolve()
 }
 
-function revealCTags(editor, entry) {
+function revealCTags(context, editor, entry) {
     if (!entry) {
         return
     }
 
     const openAndReveal = (sel) => {
-        return vscode.workspace.openTextDocument(entry.file).then(doc => {
+        return saveState(context, editor).then(() => {
+            return vscode.workspace.openTextDocument(entry.file)
+        }).then(doc => {
             return vscode.window.showTextDocument(doc, editor.viewColumn).then(editor => {
                 if (sel) {
                     editor.selection = sel
