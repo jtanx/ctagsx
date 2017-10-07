@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.0.4] - 2017-10-07
+### Added
+- Added a new command to manually enter the tag to jump to via an input prompt (default: `Ctrl+alt+t`/`Cmd+alt+t`)
+
 ## [1.0.3] - 2017-05-13
 ### Fixed
 - Fix jumping to tags when editing an untitled document (default to using workspace root to search for tags)

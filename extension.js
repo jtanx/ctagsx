@@ -9,7 +9,10 @@ const eachLine = Promise.promisify(lineReader.eachLine)
 function activate(context) {
     console.log('ctagsx is live')
 
-    let disposable = vscode.commands.registerCommand('extension.findCTags', () => findCTags(context))
+    let disposable = vscode.commands.registerCommand('extension.findCTags', () => findCTagsInDocument(context))
+    context.subscriptions.push(disposable)
+
+    disposable = vscode.commands.registerCommand('extension.findCTagsPrompt', () => findCTagsFromPrompt(context))
     context.subscriptions.push(disposable)
 
     disposable = vscode.commands.registerCommand('extension.ctagsJumpBack', () => jumpBack(context))
@@ -26,7 +29,20 @@ function deactivate() {
 }
 exports.deactivate = deactivate
 
-function findCTags(context) {
+function findCTagsFromPrompt(context) {
+    const options = {
+        'prompt': 'Enter a tag to search for'
+    }
+    // TODO: Provide completion (jtanx/ctagz#2)
+    return vscode.window.showInputBox(options).then(tag => {
+        if (!tag) {
+            return
+        }
+        return findCTags(context, tag)
+    })
+}
+
+function findCTagsInDocument(context) {
     const editor = vscode.window.activeTextEditor
     if (!editor) {
         console.log('ctagsx: Cannot search - no active editor (file too large? https://github.com/Microsoft/vscode/issues/3147)')
@@ -38,6 +54,11 @@ function findCTags(context) {
         return
     }
 
+    return findCTags(context, tag)
+}
+
+function findCTags(context, tag) {
+    const editor = vscode.window.activeTextEditor
     let searchPath = editor.document.fileName
     if (editor.document.isUntitled || editor.document.uri.scheme !== 'file') {
         searchPath = vscode.workspace.rootPath
