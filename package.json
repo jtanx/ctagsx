@@ -29,6 +29,17 @@
   ],
   "main": "./extension",
   "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "ctagsx configuration",
+      "properties": {
+        "ctagsx.openAsPreview": {
+          "type": "boolean",
+          "default": false,
+          "description": "Open navigated to files in preview mode"
+        }
+      }
+    },
     "commands": [
       {
         "command": "extension.findCTags",

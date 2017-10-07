@@ -18,7 +18,7 @@ To search for a tag, press `Ctrl+t`/`Cmd+t`. To jump back to where you searched 
 * Searches tags files relative to the source file being edited
 
 ## Extension Settings
-None at the moment
+* `ctagsx.openAsPreview`: Controls if the navigated file will be opened in preview mode (default: `false`)
 
 ## Known Issues
 Please report any issues to https://github.com/jtanx/ctagsx/issues

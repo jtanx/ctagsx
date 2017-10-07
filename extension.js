@@ -110,14 +110,7 @@ function jumpBack(context) {
         return context.workspaceState.update('CTAGSX_JUMP_STACK', stack).then(() => {
             const uri = vscode.Uri.parse(position.uri)
             const sel = new vscode.Selection(position.lineNumber, position.charPos, position.lineNumber, position.charPos)
-            return vscode.workspace.openTextDocument(uri).then(doc => {
-                const editor = vscode.window.activeTextEditor
-                const viewColumn = editor ? editor.viewColumn : vscode.ViewColumn.One
-                return vscode.window.showTextDocument(doc, viewColumn).then(editor => {
-                    editor.selection = sel
-                    editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)
-                })
-            })
+            return openAndReveal(context, vscode.window.activeTextEditor, uri, sel)
         })
     }
 }
@@ -218,35 +211,39 @@ function getFileLineNumber(editor) {
     return Promise.resolve()
 }
 
+function openAndReveal(context, editor, document, sel, doSaveState) {
+    if (doSaveState) {
+        return saveState(context, editor).then(() => openAndReveal(context, editor, document, sel))
+    }
+    return vscode.workspace.openTextDocument(document).then(doc => {
+        const viewColumn = editor ? editor.viewColumn : vscode.ViewColumn.One
+        const preview = vscode.workspace.getConfiguration('ctagsx').get('openAsPreview')
+
+        return vscode.window.showTextDocument(doc, {preview, viewColumn}).then(editor => {
+            if (sel) {
+                editor.selection = sel
+                editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)
+            }
+        })
+    })
+}
+
 function revealCTags(context, editor, entry) {
     if (!entry) {
         return
     }
 
-    const openAndReveal = (sel) => {
-        return saveState(context, editor).then(() => {
-            return vscode.workspace.openTextDocument(entry.file)
-        }).then(doc => {
-            return vscode.window.showTextDocument(doc, editor.viewColumn).then(editor => {
-                if (sel) {
-                    editor.selection = sel
-                    editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)
-                }
-            })
-        })
-    }
-
     if (entry.address.lineNumber === 0) {
         return getLineNumber(entry).then(sel => {
-            return openAndReveal(sel)
+            return openAndReveal(context, editor, entry.file, sel, true)
         })
     } else if (entry.kind === 'F') {
         return getFileLineNumber(editor).then(sel => {
-            return openAndReveal(sel)
+            return openAndReveal(context, editor, entry.file, sel, true)
         })
     } else {
         const lineNumber = Math.max(0, entry.address.lineNumber - 1)
         const sel = new vscode.Selection(lineNumber, 0, lineNumber, 0)
-        return openAndReveal(sel)
+        return openAndReveal(context, editor, entry.file, sel, true)
     }
 }

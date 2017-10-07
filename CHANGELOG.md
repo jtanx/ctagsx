@@ -4,6 +4,7 @@ All notable changes to the "ctagsx" extension will be documented in this file.
 ## [1.0.4] - 2017-10-07
 ### Added
 - Added a new command to manually enter the tag to jump to via an input prompt (default: `Ctrl+alt+t`/`Cmd+alt+t`)
+- Added a preference (`ctagsx.openAsPreview`) to open the navigated file in preview mode (default: `false`). This restores to default behaviour as observed pre VSCode 1.15.
 
 ## [1.0.3] - 2017-05-13
 ### Fixed
