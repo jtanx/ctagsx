@@ -4,7 +4,7 @@
   "description": "A fast, cross-platform and working ctags implementation",
   "version": "1.0.4",
   "publisher": "jtanx",
-  "icon": "img/logo.svg",
+  "icon": "img/logo.png",
   "engines": {
     "vscode": "^1.15.0"
   },
