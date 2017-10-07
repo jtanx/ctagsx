@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.0.5] - 2017-10-07
+## Fixed
+- Reverted use of `vscode.ViewColumn.Active` for backwards compatibility/minimum version mismatch (currently specifies 1.15.0 as minimum, but `vscode.ViewColumn.Active` is present only in 1.17.0)
+
 ## [1.0.4] - 2017-10-07
 ### Added
 - Added a new command to manually enter the tag to jump to via an input prompt (default: `Ctrl+alt+t`/`Cmd+alt+t`)

@@ -230,7 +230,7 @@ function openAndReveal(context, editor, document, sel, doSaveState) {
     }
     return vscode.workspace.openTextDocument(document).then(doc => {
         const showOptions = {
-            viewColumn: vscode.ViewColumn.Active,
+            viewColumn: editor ? editor.viewColumn : vscode.ViewColumn.One,
             preview: vscode.workspace.getConfiguration('ctagsx').get('openAsPreview'),
             selection: sel
         }
