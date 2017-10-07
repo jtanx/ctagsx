@@ -59,15 +59,20 @@ function findCTagsInDocument(context) {
 
 function findCTags(context, tag) {
     const editor = vscode.window.activeTextEditor
-    let searchPath = editor.document.fileName
-    if (editor.document.isUntitled || editor.document.uri.scheme !== 'file') {
-        searchPath = vscode.workspace.rootPath
+    let searchPath = vscode.workspace.rootPath
+
+    if (editor && !editor.document.isUntitled && editor.document.uri.scheme === 'file') {
+        searchPath = editor.document.fileName
     }
 
     if (!searchPath) {
         console.log('ctagsx: Could not get a path to search for tags file')
-        console.log('ctagsx: Document is untitled? ', editor.document.isUntitled)
-        console.log('ctagsx: Document URI:', editor.document.uri.toString())
+        if (editor) {
+            console.log('ctagsx: Document is untitled? ', editor.document.isUntitled)
+            console.log('ctagsx: Document URI:', editor.document.uri.toString())
+        } else {
+            console.log('ctagsx: Active text editor is undefined')
+        }
         console.log('ctagsx: Workspace root: ', vscode.workspace.rootPath)
         return vscode.window.showWarningMessage(`ctagsx: No searchable path (no workspace folder open?)`)
     }
@@ -120,6 +125,10 @@ function clearJumpStack(context) {
 }
 
 function saveState(context, editor) {
+    if (!editor) {
+        // Can happen on manual entry with no editor open
+        return Promise.resolve()
+    }
     const currentPosition = {
         uri: editor.document.uri.toString(),
         lineNumber: editor.selection.active.line,
@@ -188,6 +197,10 @@ function getLineNumber(entry) {
 }
 
 function getFileLineNumber(editor) {
+    if (!editor) {
+        // Can happen on manual entry with no editor open
+        return Promise.resolve()
+    }
     let pos = editor.selection.end.translate(0, 1)
     let range = editor.document.getWordRangeAtPosition(pos)
     if (range) {
@@ -216,15 +229,12 @@ function openAndReveal(context, editor, document, sel, doSaveState) {
         return saveState(context, editor).then(() => openAndReveal(context, editor, document, sel))
     }
     return vscode.workspace.openTextDocument(document).then(doc => {
-        const viewColumn = editor ? editor.viewColumn : vscode.ViewColumn.One
-        const preview = vscode.workspace.getConfiguration('ctagsx').get('openAsPreview')
-
-        return vscode.window.showTextDocument(doc, {preview, viewColumn}).then(editor => {
-            if (sel) {
-                editor.selection = sel
-                editor.revealRange(sel, vscode.TextEditorRevealType.InCenter)
-            }
-        })
+        const showOptions = {
+            viewColumn: vscode.ViewColumn.Active,
+            preview: vscode.workspace.getConfiguration('ctagsx').get('openAsPreview'),
+            selection: sel
+        }
+        return vscode.window.showTextDocument(doc, showOptions)
     })
 }
 

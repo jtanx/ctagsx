@@ -6,7 +6,7 @@
   "publisher": "jtanx",
   "icon": "img/logo.svg",
   "engines": {
-    "vscode": "^1.10.0"
+    "vscode": "^1.15.0"
   },
   "repository": {
     "type": "git",
