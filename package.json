@@ -25,7 +25,8 @@
     "onCommand:extension.findCTags",
     "onCommand:extension.findCTagsPrompt",
     "onCommand:extension.ctagsJumpBack",
-    "onCommand:extension.ctagsClearJumpStack"
+    "onCommand:extension.ctagsClearJumpStack",
+    "*"
   ],
   "main": "./extension",
   "contributes": {
@@ -37,6 +38,11 @@
           "type": "boolean",
           "default": false,
           "description": "Open navigated to files in preview mode"
+        },
+        "ctagsx.disableDefinitionProvider": {
+          "type": "boolean",
+          "default": false,
+          "description": "Disable ctagsx from providing symbol definitions to VSCode's in-built definition navigator"
         }
       }
     },

@@ -20,6 +20,11 @@ function activate(context) {
 
     disposable = vscode.commands.registerCommand('extension.ctagsClearJumpStack', () => clearJumpStack(context))
     context.subscriptions.push(disposable)
+
+    if (!vscode.workspace.getConfiguration('ctagsx').get('disableDefinitionProvider')) {
+        disposable = vscode.languages.registerDefinitionProvider({pattern:'**/*'}, {provideDefinition})
+        context.subscriptions.push(disposable)
+    }
 }
 exports.activate = activate
 
@@ -108,6 +113,51 @@ function findCTags(context, tag) {
     })
 }
 
+function provideDefinition(document, position, canceller) {
+    if (document.isUntitled || document.uri.scheme !== 'file') {
+        console.log('ctagsx: Cannot provide definitions for untitled (unsaved) and/or non-local (non file://) documents')
+        return Promise.reject()
+    }
+    const range = document.getWordRangeAtPosition(position)
+    if (!range) {
+        console.log('ctagsx: Cannot provide definition without a valid tag (word range)')
+        return Promise.reject()
+    }
+    const tag = document.getText(range)
+    if (!tag) {
+        console.log('ctagsx: Cannot provide definition with an empty tag')
+        return Promise.reject()
+    }
+
+    return ctagz.findCTagsBSearch(document.fileName, tag)
+    .then(result => {
+        const options = result.results.map(tag => {
+            if (!path.isAbsolute(tag.file)) {
+                tag.file = path.join(path.dirname(result.tagsFile), tag.file)
+            }
+            return tag
+        })
+
+        const results = []
+        return Promise.each(options, item => {
+            if (canceller.isCancellationRequested) {
+                return
+            }
+            return getLineNumber(item, document, range, canceller).then(sel => {
+                if (sel) {
+                    results.push(new vscode.Location(vscode.Uri.file(item.file), sel.start))
+                }
+            })
+        }).then(() => {
+            return results
+        })
+    })
+    .catch(err => {
+        console.log(err.stack)
+        return Promise.reject()
+    })
+}
+
 function jumpBack(context) {
     const stack = context.workspaceState.get('CTAGSX_JUMP_STACK', [])
     if (stack.length > 0) {
@@ -162,7 +212,7 @@ function getTag(editor) {
     return tag
 }
 
-function getLineNumber(entry) {
+function getLineNumberPattern(entry, canceller) {
     let matchWhole = false
     let pattern = entry.address.pattern
     if (pattern.startsWith("^")) {
@@ -187,6 +237,9 @@ function getLineNumber(entry) {
           charPos = Math.max(line.indexOf(entry.name), 0)
           console.log(`ctagsx: Found '${pattern}' at ${lineNumber}:${charPos}`)
           return false
+        } else if (canceller && canceller.isCancellationRequested) {
+            console.log('ctagsx: Cancelled pattern searching')
+            return false
         }
     })
     .then(() => {
@@ -196,23 +249,25 @@ function getLineNumber(entry) {
     })
 }
 
-function getFileLineNumber(editor) {
-    if (!editor) {
-        // Can happen on manual entry with no editor open
-        return Promise.resolve()
-    }
-    let pos = editor.selection.end.translate(0, 1)
-    let range = editor.document.getWordRangeAtPosition(pos)
+/**
+ * Attempts to infer the line number/character position for a file
+ * navigation based on the selection/range that triggered this search.
+ * @param {*} document Document that triggered this call
+ * @param {*} sel Selection or range that triggered this call
+ */
+function getFileLineNumber(document, sel) {
+    let pos = sel.end.translate(0, 1)
+    let range = document.getWordRangeAtPosition(pos)
     if (range) {
-        let text = editor.document.getText(range)
+        let text = document.getText(range)
         if (text.match(/[0-9]+/)) {
             const lineNumber = Math.max(0, parseInt(text, 10) - 1)
             let charPos = 0
 
             pos = range.end.translate(0, 1)
-            range = editor.document.getWordRangeAtPosition(pos)
+            range = document.getWordRangeAtPosition(pos)
             if (range) {
-                text = editor.document.getText(range)
+                text = document.getText(range)
                 if (text.match(/[0-9]+/)) {
                     charPos = Math.max(0, parseInt(text) - 1)
                 }
@@ -222,6 +277,19 @@ function getFileLineNumber(editor) {
         }
     }
     return Promise.resolve()
+}
+
+function getLineNumber(entry, document, sel, canceller) {
+    if (entry.address.lineNumber === 0) {
+        return getLineNumberPattern(entry, canceller)
+    } else if (entry.kind === 'F') {
+        if (document) {
+            return getFileLineNumber(document, sel)
+        }
+    }
+
+    const lineNumber = Math.max(0, entry.address.lineNumber - 1)
+    return new vscode.Selection(lineNumber, 0, lineNumber, 0)
 }
 
 function openAndReveal(context, editor, document, sel, doSaveState) {
@@ -243,17 +311,9 @@ function revealCTags(context, editor, entry) {
         return
     }
 
-    if (entry.address.lineNumber === 0) {
-        return getLineNumber(entry).then(sel => {
-            return openAndReveal(context, editor, entry.file, sel, true)
-        })
-    } else if (entry.kind === 'F') {
-        return getFileLineNumber(editor).then(sel => {
-            return openAndReveal(context, editor, entry.file, sel, true)
-        })
-    } else {
-        const lineNumber = Math.max(0, entry.address.lineNumber - 1)
-        const sel = new vscode.Selection(lineNumber, 0, lineNumber, 0)
+    const document = editor ? editor.document : null
+    const triggeredSel = editor ? editor.selection : null
+    return getLineNumber(entry, document, triggeredSel).then(sel => {
         return openAndReveal(context, editor, entry.file, sel, true)
-    }
+    })
 }
