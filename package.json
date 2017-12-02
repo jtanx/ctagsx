@@ -22,10 +22,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.findCTags",
-    "onCommand:extension.findCTagsPrompt",
-    "onCommand:extension.ctagsJumpBack",
-    "onCommand:extension.ctagsClearJumpStack",
     "*"
   ],
   "main": "./extension",

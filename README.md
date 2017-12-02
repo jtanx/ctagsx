@@ -12,6 +12,8 @@ This will generate a file called `tags`. This may be placed in the same folder a
 
 To search for a tag, press `Ctrl+t`/`Cmd+t`. To jump back to where you searched for a tag, press `Alt+t`. To manually enter the tag to jump to, press `Ctrl+alt+t`/`Cmd+alt+t`.
 
+Separate to this, as of version 1.0.6, ctagsx integrates directly with VSCode's definition provider.
+
 ## Features
 * Is cross platform
 * Remains relatively fast even on large tags files
@@ -19,6 +21,7 @@ To search for a tag, press `Ctrl+t`/`Cmd+t`. To jump back to where you searched 
 
 ## Extension Settings
 * `ctagsx.openAsPreview`: Controls if the navigated file will be opened in preview mode (default: `false`)
+* `ctagsx.disableDefinitionProvider`: Setting this to true prevents ctagsx from providing definitions via this interface (default: `false`).
 
 ## Known Issues
 Please report any issues to https://github.com/jtanx/ctagsx/issues
