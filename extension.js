@@ -154,7 +154,6 @@ function provideDefinition(document, position, canceller) {
     })
     .catch(err => {
         console.log(err.stack)
-        return Promise.reject()
     })
 }
 

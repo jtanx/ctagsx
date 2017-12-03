@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
-## [1.0.6] - UNRELEASED
+## [1.0.6] - 2017-12-03
 - Registered ctagsx as a definition provider for *all* languages (integration into VSCode's definition provider interface). May be disabled by setting `ctagsx.disableDefinitionProvider` to `true`.
 
 ## [1.0.5] - 2017-10-07
