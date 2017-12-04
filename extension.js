@@ -278,6 +278,14 @@ function getFileLineNumber(document, sel) {
     return Promise.resolve()
 }
 
+/**
+ * Finds the line number (selection) within the document
+ * @param {*} entry The tag entry
+ * @param {*} document The document that triggered this call (optional)
+ * @param {*} sel The selection or range that triggered this call (optional)
+ * @param {*} canceller The cancellation token to cancel this action
+ * @returns A promise resolving to the selection within the document, or undefined if not found
+ */
 function getLineNumber(entry, document, sel, canceller) {
     if (entry.address.lineNumber === 0) {
         return getLineNumberPattern(entry, canceller)
@@ -288,7 +296,7 @@ function getLineNumber(entry, document, sel, canceller) {
     }
 
     const lineNumber = Math.max(0, entry.address.lineNumber - 1)
-    return new vscode.Selection(lineNumber, 0, lineNumber, 0)
+    return Promise.resolve(new vscode.Selection(lineNumber, 0, lineNumber, 0))
 }
 
 function openAndReveal(context, editor, document, sel, doSaveState) {

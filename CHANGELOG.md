@@ -1,11 +1,16 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.0.7] - 2017-12-04
+### Fixed
+- Fixed a regression when jumping to a positional (line-based) tag
+
 ## [1.0.6] - 2017-12-03
+### Added
 - Registered ctagsx as a definition provider for *all* languages (integration into VSCode's definition provider interface). May be disabled by setting `ctagsx.disableDefinitionProvider` to `true`.
 
 ## [1.0.5] - 2017-10-07
-## Fixed
+### Fixed
 - Reverted use of `vscode.ViewColumn.Active` for backwards compatibility/minimum version mismatch (currently specifies 1.15.0 as minimum, but `vscode.ViewColumn.Active` is present only in 1.17.0)
 
 ## [1.0.4] - 2017-10-07
