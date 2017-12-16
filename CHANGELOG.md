@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.0.8] - 2017-12-16
+### Added
+- Added a command to create a terminal in the workspace of the active document (key binding: unbound)
+
 ## [1.0.7] - 2017-12-04
 ### Fixed
 - Fixed a regression when jumping to a positional (line-based) tag

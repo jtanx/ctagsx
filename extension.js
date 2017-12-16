@@ -21,6 +21,9 @@ function activate(context) {
     disposable = vscode.commands.registerCommand('extension.ctagsClearJumpStack', () => clearJumpStack(context))
     context.subscriptions.push(disposable)
 
+    disposable = vscode.commands.registerCommand('extension.createTerminal', createTerminal)
+    context.subscriptions.push(disposable)
+
     if (!vscode.workspace.getConfiguration('ctagsx').get('disableDefinitionProvider')) {
         disposable = vscode.languages.registerDefinitionProvider({pattern:'**/*'}, {provideDefinition})
         context.subscriptions.push(disposable)
@@ -33,6 +36,10 @@ function deactivate() {
     console.log('ctagsx is tombstoned')
 }
 exports.deactivate = deactivate
+
+function createTerminal() {
+    vscode.window.createTerminal().show()
+}
 
 function findCTagsFromPrompt(context) {
     const options = {

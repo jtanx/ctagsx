@@ -18,6 +18,7 @@ Separate to this, ctagsx also provides another searching mechanism; to search fo
 * Is cross platform
 * Remains relatively fast even on large tags files
 * Searches tags files relative to the source file being edited
+* Bonus: Added command to create terminal in workspace of active document
 
 ## Extension Settings
 * `ctagsx.openAsPreview`: Controls if the navigated file will be opened in preview mode (default: `false`)

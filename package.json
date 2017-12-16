@@ -2,7 +2,7 @@
   "name": "ctagsx",
   "displayName": "ctagsx",
   "description": "A fast, cross-platform and working ctags implementation",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "publisher": "jtanx",
   "icon": "img/logo.png",
   "engines": {
@@ -58,6 +58,10 @@
       {
         "command": "extension.ctagsClearJumpStack",
         "title": "ctagsx: Clear navigation history"
+      },
+      {
+        "command": "extension.createTerminal",
+        "title": "ctagsx: Create a terminal in the workspace of the active document"
       }
     ],
     "keybindings": [
