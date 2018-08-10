@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.0.9] - 2018-08-11
+### Fixed
+- Prevent folders that match the tag file pattern (e.g. `tags` or `.tags`) from being considered as a tags file
+
 ## [1.0.8] - 2017-12-16
 ### Added
 - Added a command to create a terminal in the workspace of the active document (key binding: unbound)

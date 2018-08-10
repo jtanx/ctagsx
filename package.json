@@ -2,7 +2,7 @@
   "name": "ctagsx",
   "displayName": "ctagsx",
   "description": "A fast, cross-platform and working ctags implementation",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "publisher": "jtanx",
   "icon": "img/logo.png",
   "engines": {
@@ -15,7 +15,7 @@
   "author": "Jeremy Tan",
   "license": "MIT",
   "bugs": {
-      "url": "https://github.com/jtanx/ctagsx/issues"
+    "url": "https://github.com/jtanx/ctagsx/issues"
   },
   "homepage": "https://github.com/jtanx/ctagsx",
   "categories": [
@@ -48,7 +48,7 @@
         "title": "ctagsx: Navigate to definition"
       },
       {
-        "command":"extension.findCTagsPrompt",
+        "command": "extension.findCTagsPrompt",
         "title": "ctagsx: Search for definition"
       },
       {
@@ -89,15 +89,15 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
-    "eslint": "^3.6.0",
+    "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "eslint": "^3.19.0",
+    "mocha": "^5.2.0",
+    "typescript": "^2.0.3",
+    "vscode": "^1.1.18"
   },
   "dependencies": {
-    "ctagz": "^0.0.5",
+    "ctagz": "^0.0.6",
     "line-reader": "^0.4.0"
   }
 }
