@@ -2,7 +2,7 @@
   "name": "ctagsx",
   "displayName": "ctagsx",
   "description": "A fast, cross-platform and working ctags implementation",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "publisher": "jtanx",
   "icon": "img/logo.png",
   "engines": {
@@ -89,15 +89,15 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.40",
-    "eslint": "^3.19.0",
+    "@types/mocha": "^2.2.48",
+    "@types/node": "^6.14.3",
+    "eslint": "^5.13.0",
     "mocha": "^5.2.0",
-    "typescript": "^2.0.3",
-    "vscode": "^1.1.18"
+    "typescript": "^2.9.2",
+    "vscode": "^1.1.29"
   },
   "dependencies": {
-    "ctagz": "^0.0.6",
+    "ctagz": "^0.1.0",
     "line-reader": "^0.4.0"
   }
 }

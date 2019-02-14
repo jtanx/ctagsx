@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.1.0] - 2019-02-14
+### Fixed
+- Fixed tag searching for VSCode 1.31
+
 ## [1.0.9] - 2018-08-11
 ### Fixed
 - Prevent folders that match the tag file pattern (e.g. `tags` or `.tags`) from being considered as a tags file
