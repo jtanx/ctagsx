@@ -25,7 +25,7 @@ function activate(context) {
     context.subscriptions.push(disposable)
 
     if (!vscode.workspace.getConfiguration('ctagsx').get('disableDefinitionProvider')) {
-        disposable = vscode.languages.registerDefinitionProvider({pattern:'**/*'}, {provideDefinition})
+        disposable = vscode.languages.registerDefinitionProvider({ pattern: '**/*' }, { provideDefinition })
         context.subscriptions.push(disposable)
     }
 }
@@ -90,34 +90,34 @@ function findCTags(context, tag) {
     }
 
     ctagz.findCTagsBSearch(searchPath, tag)
-    .then(result => {
-        const options = result.results.map(tag => {
-            if (!path.isAbsolute(tag.file)) {
-                tag.file = path.join(path.dirname(result.tagsFile), tag.file)
-            }
-            tag.description = tag.kind || ''
-            tag.label = tag.file
-            tag.detail = tag.address.pattern || `Line ${tag.address.lineNumber}`
-            return tag
-        })
-
-        if (!options.length) {
-            if (!result.tagsFile) {
-                return vscode.window.showWarningMessage(`ctagsx: No tags file found`)
-            }
-            return vscode.window.showInformationMessage(`ctagsx: No tags found for ${tag}`)
-        } else if (options.length === 1) {
-            return revealCTags(context, editor, options[0])
-        } else {
-            return vscode.window.showQuickPick(options).then(opt => {
-                return revealCTags(context, editor, opt)
+        .then(result => {
+            const options = result.results.map(tag => {
+                if (!path.isAbsolute(tag.file)) {
+                    tag.file = path.join(path.dirname(result.tagsFile), tag.file)
+                }
+                tag.description = tag.kind || ''
+                tag.label = tag.file
+                tag.detail = tag.address.pattern || `Line ${tag.address.lineNumber}`
+                return tag
             })
-        }
-    })
-    .catch(err => {
-        console.log(err.stack)
-        vscode.window.showErrorMessage(`ctagsx: Search failed: ${err}`)
-    })
+
+            if (!options.length) {
+                if (!result.tagsFile) {
+                    return vscode.window.showWarningMessage(`ctagsx: No tags file found`)
+                }
+                return vscode.window.showInformationMessage(`ctagsx: No tags found for ${tag}`)
+            } else if (options.length === 1) {
+                return revealCTags(context, editor, options[0])
+            } else {
+                return vscode.window.showQuickPick(options).then(opt => {
+                    return revealCTags(context, editor, opt)
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err.stack)
+            vscode.window.showErrorMessage(`ctagsx: Search failed: ${err}`)
+        })
 }
 
 function provideDefinition(document, position, canceller) {
@@ -125,43 +125,53 @@ function provideDefinition(document, position, canceller) {
         console.log('ctagsx: Cannot provide definitions for untitled (unsaved) and/or non-local (non file://) documents')
         return Promise.reject()
     }
-    const range = document.getWordRangeAtPosition(position)
-    if (!range) {
-        console.log('ctagsx: Cannot provide definition without a valid tag (word range)')
-        return Promise.reject()
+
+    let tag, range
+    const editor = vscode.window.activeTextEditor
+    if (editor && editor.document == document && position.isEqual(editor.selection.active)) {
+        range = editor.selection
+        tag = editor.document.getText(editor.selection).trim()
     }
-    const tag = document.getText(range)
+
     if (!tag) {
-        console.log('ctagsx: Cannot provide definition with an empty tag')
-        return Promise.reject()
+        range = document.getWordRangeAtPosition(position)
+        if (!range) {
+            console.log('ctagsx: Cannot provide definition without a valid tag (word range)')
+            return Promise.reject()
+        }
+        tag = document.getText(range)
+        if (!tag) {
+            console.log('ctagsx: Cannot provide definition with an empty tag')
+            return Promise.reject()
+        }
     }
 
     return ctagz.findCTagsBSearch(document.fileName, tag)
-    .then(result => {
-        const options = result.results.map(tag => {
-            if (!path.isAbsolute(tag.file)) {
-                tag.file = path.join(path.dirname(result.tagsFile), tag.file)
-            }
-            return tag
-        })
-
-        const results = []
-        return Promise.each(options, item => {
-            if (canceller.isCancellationRequested) {
-                return
-            }
-            return getLineNumber(item, document, range, canceller).then(sel => {
-                if (sel) {
-                    results.push(new vscode.Location(vscode.Uri.file(item.file), sel.start))
+        .then(result => {
+            const options = result.results.map(tag => {
+                if (!path.isAbsolute(tag.file)) {
+                    tag.file = path.join(path.dirname(result.tagsFile), tag.file)
                 }
+                return tag
             })
-        }).then(() => {
-            return results
+
+            const results = []
+            return Promise.each(options, item => {
+                if (canceller.isCancellationRequested) {
+                    return
+                }
+                return getLineNumber(item, document, range, canceller).then(sel => {
+                    if (sel) {
+                        results.push(new vscode.Location(vscode.Uri.file(item.file), sel.start))
+                    }
+                })
+            }).then(() => {
+                return results
+            })
         })
-    })
-    .catch(err => {
-        console.log(err.stack)
-    })
+        .catch(err => {
+            console.log(err.stack)
+        })
 }
 
 function jumpBack(context) {
@@ -239,20 +249,20 @@ function getLineNumberPattern(entry, canceller) {
     return eachLine(entry.file, line => {
         lineNumber += 1
         if ((matchWhole && line === pattern) || line.startsWith(pattern)) {
-          found = true
-          charPos = Math.max(line.indexOf(entry.name), 0)
-          console.log(`ctagsx: Found '${pattern}' at ${lineNumber}:${charPos}`)
-          return false
+            found = true
+            charPos = Math.max(line.indexOf(entry.name), 0)
+            console.log(`ctagsx: Found '${pattern}' at ${lineNumber}:${charPos}`)
+            return false
         } else if (canceller && canceller.isCancellationRequested) {
             console.log('ctagsx: Cancelled pattern searching')
             return false
         }
     })
-    .then(() => {
-        if (found) {
-            return new vscode.Selection(lineNumber - 1, charPos, lineNumber - 1, charPos)
-        }
-    })
+        .then(() => {
+            if (found) {
+                return new vscode.Selection(lineNumber - 1, charPos, lineNumber - 1, charPos)
+            }
+        })
 }
 
 /**

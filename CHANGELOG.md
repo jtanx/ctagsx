@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.1.1] - 2019-03-30
+### Changed
+- Preference the current text selection when navigating via the definition provider (F12). This matches the behaviour when searching via Ctrl+T.
+
 ## [1.1.0] - 2019-02-14
 ### Fixed
 - Fixed tag searching for VSCode 1.31
