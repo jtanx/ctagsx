@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "ctagsx" extension will be documented in this file.
 
+## [1.2.0] - 2022-02-02
+### Fixed
+- Fix clash with QuickPickItem that was preventing option selection from working (#20)
+
 ## [1.1.1] - 2019-03-30
 ### Changed
 - Preference the current text selection when navigating via the definition provider (F12). This matches the behaviour when searching via Ctrl+T.

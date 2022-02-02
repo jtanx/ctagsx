@@ -95,9 +95,11 @@ function findCTags(context, tag) {
                 if (!path.isAbsolute(tag.file)) {
                     tag.file = path.join(path.dirname(result.tagsFile), tag.file)
                 }
-                tag.description = tag.kind || ''
+                tag.tagKind = tag.kind
+                tag.description = tag.tagKind || ''
                 tag.label = tag.file
                 tag.detail = tag.address.pattern || `Line ${tag.address.lineNumber}`
+                delete tag.kind // #20 -> avoid conflict with QuickPickItem
                 return tag
             })
 
@@ -152,6 +154,8 @@ function provideDefinition(document, position, canceller) {
                 if (!path.isAbsolute(tag.file)) {
                     tag.file = path.join(path.dirname(result.tagsFile), tag.file)
                 }
+                tag.tagKind = tag.kind
+                delete tag.kind
                 return tag
             })
 
@@ -306,7 +310,7 @@ function getFileLineNumber(document, sel) {
 function getLineNumber(entry, document, sel, canceller) {
     if (entry.address.lineNumber === 0) {
         return getLineNumberPattern(entry, canceller)
-    } else if (entry.kind === 'F') {
+    } else if (entry.tagKind === 'F') {
         if (document) {
             return getFileLineNumber(document, sel)
         }
