@@ -39,6 +39,21 @@
           "type": "boolean",
           "default": false,
           "description": "Disable ctagsx from providing symbol definitions to VSCode's in-built definition navigator"
+        },
+        "ctagsx.enableDefaultLocationForFile": {
+          "type": "boolean",
+          "default": false,
+          "description": "Trim the file path to the workspace root when generating multiple tags"
+        },
+        "ctagsx.swapLabelAndDetail": {
+          "type": "boolean",
+          "default": false,
+          "description": "Swap the label and detail in the QuickPick list (make class name become larger than class path)"
+        },
+        "ctagsx.deleteCaretFromLabel": {
+          "type": "boolean",
+          "default": false,
+          "description": "Delete the caret from QuickPick the label in the symbol list"
         }
       }
     },
