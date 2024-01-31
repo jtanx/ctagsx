@@ -5,6 +5,11 @@ const Promise = require('bluebird')
 const vscode = require('vscode')
 const eachLine = Promise.promisify(lineReader.eachLine)
 
+let swapLabelAndDetail = false;
+let defaultTrim = false;
+let basePath;
+let deleteCaret = false;
+
 // Called when the plugin is first activated
 function activate(context) {
     console.log('ctagsx is live')
@@ -27,6 +32,22 @@ function activate(context) {
     if (!vscode.workspace.getConfiguration('ctagsx').get('disableDefinitionProvider')) {
         disposable = vscode.languages.registerDefinitionProvider({ pattern: '**/*' }, { provideDefinition })
         context.subscriptions.push(disposable)
+    }
+
+    if (vscode.workspace.getConfiguration('ctagsx').get('swapLabelAndDetail')) {
+        swapLabelAndDetail = true
+    }
+
+    if (vscode.workspace.getConfiguration('ctagsx').get('enableDefaultLocationForFile')) {
+        defaultTrim = true
+
+        if (vscode.workspace.workspaceFolders) {
+            basePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+        }
+    }
+
+    if (vscode.workspace.getConfiguration('ctagsx').get('deleteCaretFromLabel')) {
+        deleteCaret = true
     }
 }
 exports.activate = activate
@@ -95,10 +116,17 @@ function findCTags(context, tag) {
                 if (!path.isAbsolute(tag.file)) {
                     tag.file = path.join(path.dirname(result.tagsFile), tag.file)
                 }
+                const detail = deleteCaret
+                    ? tag.address.pattern.replace("^", "") || `Line ${tag.address.lineNumber}`
+                    : tag.address.pattern || `Line ${tag.address.lineNumber}`
+
+                const label = defaultTrim
+                    ? path.relative(basePath, tag.file)
+                    : tag.file
+
                 tag.tagKind = tag.kind
-                tag.description = tag.tagKind || ''
-                tag.label = tag.file
-                tag.detail = tag.address.pattern || `Line ${tag.address.lineNumber}`
+                tag.description = tag.tagKind || '';
+                [tag.label, tag.detail] = swapLabelAndDetail ? [detail, label] : [label, detail];
                 delete tag.kind // #20 -> avoid conflict with QuickPickItem
                 return tag
             })
